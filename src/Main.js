@@ -112,6 +112,8 @@ CM.ReplaceNativeGrimoireDraw = function() {
 	if (!CM.HasReplaceNativeGrimoireDraw && Game.Objects['Wizard tower'].minigameLoaded) {
 		var minigame = Game.Objects['Wizard tower'].minigame;
 		CM.Backup.GrimoireDraw = minigame.draw;
+		minigame.magicBarTextL.style.whiteSpace = 'nowrap';
+		minigame.magicBarTextL.style.left = '1px';
 		Game.Objects['Wizard tower'].minigame.draw = function() {
 			CM.Backup.GrimoireDraw();
 			if (CM.Config.GrimoireBar == 1 && minigame.magic < minigame.magicM) {
@@ -260,6 +262,7 @@ CM.ConfigDefault = {
 	AvgCPSHist: 3, 
 	AvgClicksHist: 0, 
 	ToolWarnCautBon: 0, 
+	WizardLimit: 0,
 	GCFlash: 1, 
 	GCSound: 1,  
 	GCVolume: 100, 

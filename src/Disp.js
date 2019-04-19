@@ -258,11 +258,7 @@ CM.Disp.CreateBotBar = function() {
 
 	for (var i in Game.Objects) {
 		var header = document.createElement('td');
-		header.appendChild(document.createTextNode((i.indexOf(' ') != -1 ? i.substring(0, i.indexOf(' ')) : i) + ' ('));
-		var span = document.createElement('span');
-		span.className = CM.Disp.colorTextPre + CM.Disp.colorBlue;
-		header.appendChild(span);
-		header.appendChild(document.createTextNode(')'));
+		header.appendChild(document.createTextNode((i.indexOf(' ') != -1 ? i.substring(0, i.indexOf(' ')) : i)));
 		type.appendChild(header);
 		bonus.appendChild(document.createElement('td'));
 		pp.appendChild(document.createElement('td'));
@@ -292,7 +288,6 @@ CM.Disp.UpdateBotBarOther = function() {
 
 		for (var i in CM.Cache.Objects) {
 			count++;
-			CM.Disp.BotBar.firstChild.firstChild.childNodes[0].childNodes[count].childNodes[1].textContent = Game.Objects[i].amount;
 			CM.Disp.BotBar.firstChild.firstChild.childNodes[1].childNodes[count].textContent = Beautify(CM.Cache.Objects[i].bonus, 2);
 			CM.Disp.BotBar.firstChild.firstChild.childNodes[2].childNodes[count].className = CM.Disp.colorTextPre + CM.Cache.Objects[i].color;
 			CM.Disp.BotBar.firstChild.firstChild.childNodes[2].childNodes[count].textContent = Beautify(CM.Cache.Objects[i].pp, 2);
@@ -722,7 +717,7 @@ CM.Disp.UpdateUpgrades = function() {
 }
 
 CM.Disp.UpdateColors = function() {
-	var str = '';
+	var str = '.cm-botbar td { margin: 0 1px } ';
 	for (var i = 0; i < CM.Disp.colors.length; i++) {
 		str += '.' + CM.Disp.colorTextPre + CM.Disp.colors[i] + ' { color: ' + CM.Config.Colors[CM.Disp.colors[i]] + '; }\n';
 	}
@@ -1104,6 +1099,7 @@ CM.Disp.AddMenuPref = function(title) {
 	frag.appendChild(listing('AvgCPSHist'));
 	frag.appendChild(listing('AvgClicksHist'));
 	frag.appendChild(listing('ToolWarnCautBon'));
+	frag.appendChild(listing('WizardLimit'));
 
 	frag.appendChild(header('Notification'));
 	frag.appendChild(listing('GCFlash'));

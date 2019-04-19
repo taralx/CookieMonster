@@ -2,6 +2,8 @@
  * Config *
  **********/
 
+CM.WizardLimits = [Infinity, 7, 9, 12, 33, 38, 43, 93, 97, 101];
+
 CM.SaveConfig = function(config) {
 	localStorage.setItem(CM.ConfigPrefix, JSON.stringify(config));
 }
@@ -139,6 +141,10 @@ CM.ConfigData.CPSMode = {label: ['Current Cookies Per Second', 'Average Cookies 
 CM.ConfigData.AvgCPSHist = {label: ['Average CPS for past 10s', 'Average CPS for past 15s', 'Average CPS for past 30s', 'Average CPS for past 1m', 'Average CPS for past 5m', 'Average CPS for past 10m', 'Average CPS for past 15m', 'Average CPS for past 30m'], desc: 'How much time average Cookies Per Second should consider', toggle: false};
 CM.ConfigData.AvgClicksHist = {label: ['Average Cookie Clicks for past 1s', 'Average Cookie Clicks for past 5s', 'Average Cookie Clicks for past 10s', 'Average Cookie Clicks for past 15s', 'Average Cookie Clicks for past 30s'], desc: 'How much time average Cookie Clicks should consider', toggle: false};
 CM.ConfigData.ToolWarnCautBon = {label: ['Calculate Tooltip Warning/Caution With Bonus CPS OFF', 'Calculate Tooltip Warning/Caution With Bonus CPS ON'], desc: 'Calculate the warning/caution with or without the bonus CPS you get from buying', toggle: true};
+CM.ConfigData.WizardLimit = {label: ['Mana unlimited'], desc: 'Ignore Wizard tower after max mana reaches this value'};
+for (const mana of CM.WizardLimits.slice(1)) {
+	CM.ConfigData.WizardLimit.label.push('Mana limit ' + mana);
+}
 CM.ConfigData.GCFlash = {label: ['Golden Cookie Flash OFF', 'Golden Cookie Flash ON'], desc: 'Flash screen on Golden Cookie', toggle: true};
 CM.ConfigData.GCSound = {label: ['Golden Cookie Sound OFF', 'Golden Cookie Sound ON'], desc: 'Play a sound on Golden Cookie', toggle: true};
 CM.ConfigData.GCVolume = {label: [], desc: 'Volume of the Golden Cookie sound'};

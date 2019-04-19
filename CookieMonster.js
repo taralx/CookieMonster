@@ -86,21 +86,28 @@ CM.Cache.RemakeWrinkBank = function() {
 }
 
 CM.Cache.RemakeBuildingsPP = function() {
-	CM.Cache.min = -1;
-	CM.Cache.max = -1;
-	CM.Cache.mid = -1;
+	CM.Cache.min = Infinity;
+	CM.Cache.max = -Infinity;
 	for (var i in CM.Cache.Objects) {
 		//CM.Cache.Objects[i].pp = Game.Objects[i].getPrice() / CM.Cache.Objects[i].bonus;
-		CM.Cache.Objects[i].pp = (Math.max(Game.Objects[i].getPrice() - (Game.cookies + CM.Disp.GetWrinkConfigBank()), 0) / Game.cookiesPs) + (Game.Objects[i].getPrice() / CM.Cache.Objects[i].bonus);
-		if (CM.Cache.min == -1 || CM.Cache.Objects[i].pp < CM.Cache.min) CM.Cache.min = CM.Cache.Objects[i].pp;
-		if (CM.Cache.max == -1 || CM.Cache.Objects[i].pp > CM.Cache.max) CM.Cache.max = CM.Cache.Objects[i].pp;
+		const obj = Game.Objects[i];
+		CM.Cache.Objects[i].pp = (Math.max(obj.getPrice() - (Game.cookies + CM.Disp.GetWrinkConfigBank()), 0) / Game.cookiesPs) + (obj.getPrice() / CM.Cache.Objects[i].bonus);
+		CM.Cache.Objects[i].logpp = Math.log(CM.Cache.Objects[i].pp);
+		if (i !== 'Wizard tower' || !obj.minigameLoaded || obj.minigame.magicM < CM.WizardLimits[CM.Config.WizardLimit]) {
+			if (CM.Cache.Objects[i].logpp < CM.Cache.min) CM.Cache.min = CM.Cache.Objects[i].logpp;
+			if (CM.Cache.Objects[i].logpp > CM.Cache.max) CM.Cache.max = CM.Cache.Objects[i].logpp;
+			CM.Cache.Objects[i].ignored = false;
+		} else {
+			CM.Cache.Objects[i].ignored = true;
+		}
 	}
 	CM.Cache.mid = ((CM.Cache.max - CM.Cache.min) / 2) + CM.Cache.min;
 	for (var i in CM.Cache.Objects) {
 		var color = '';
-		if (CM.Cache.Objects[i].pp == CM.Cache.min) color = CM.Disp.colorGreen;
-		else if (CM.Cache.Objects[i].pp == CM.Cache.max) color = CM.Disp.colorRed;
-		else if (CM.Cache.Objects[i].pp > CM.Cache.mid) color = CM.Disp.colorOrange;
+		if (CM.Cache.Objects[i].ignored) color = CM.Disp.colorGray;
+		else if (Math.abs(CM.Cache.Objects[i].logpp - CM.Cache.min) < 0.001) color = CM.Disp.colorGreen;
+		else if (Math.abs(CM.Cache.Objects[i].logpp - CM.Cache.max) < 0.001) color = CM.Disp.colorRed;
+		else if (CM.Cache.Objects[i].logpp > CM.Cache.mid) color = CM.Disp.colorOrange;
 		else color = CM.Disp.colorYellow;
 		CM.Cache.Objects[i].color = color;
 	}
@@ -111,13 +118,14 @@ CM.Cache.RemakeUpgradePP = function() {
 		//CM.Cache.Upgrades[i].pp = Game.Upgrades[i].getPrice() / CM.Cache.Upgrades[i].bonus;
 		CM.Cache.Upgrades[i].pp = (Math.max(Game.Upgrades[i].getPrice() - (Game.cookies + CM.Disp.GetWrinkConfigBank()), 0) / Game.cookiesPs) + (Game.Upgrades[i].getPrice() / CM.Cache.Upgrades[i].bonus);
 		if (isNaN(CM.Cache.Upgrades[i].pp)) CM.Cache.Upgrades[i].pp = Infinity;
+		CM.Cache.Upgrades[i].logpp = Math.log(CM.Cache.Upgrades[i].pp);
 		var color = '';
 		if (CM.Cache.Upgrades[i].pp <= 0 || CM.Cache.Upgrades[i].pp == Infinity) color = CM.Disp.colorGray;
-		else if (CM.Cache.Upgrades[i].pp < CM.Cache.min) color = CM.Disp.colorBlue;
-		else if (CM.Cache.Upgrades[i].pp == CM.Cache.min) color = CM.Disp.colorGreen;
-		else if (CM.Cache.Upgrades[i].pp == CM.Cache.max) color = CM.Disp.colorRed;
-		else if (CM.Cache.Upgrades[i].pp > CM.Cache.max) color = CM.Disp.colorPurple;
-		else if (CM.Cache.Upgrades[i].pp > CM.Cache.mid) color = CM.Disp.colorOrange;
+		else if (CM.Cache.Upgrades[i].logpp < CM.Cache.min) color = CM.Disp.colorBlue;
+		else if (Math.abs(CM.Cache.Upgrades[i].logpp - CM.Cache.min) < 0.001) color = CM.Disp.colorGreen;
+		else if (Math.abs(CM.Cache.Upgrades[i].logpp - CM.Cache.max) < 0.001) color = CM.Disp.colorRed;
+		else if (CM.Cache.Upgrades[i].logpp > CM.Cache.max) color = CM.Disp.colorPurple;
+		else if (CM.Cache.Upgrades[i].logpp > CM.Cache.mid) color = CM.Disp.colorOrange;
 		else color = CM.Disp.colorYellow;
 		CM.Cache.Upgrades[i].color = color;
 	}
@@ -127,13 +135,15 @@ CM.Cache.RemakeBuildingsOtherPP = function(amount, target) {
 	for (var i in CM.Cache[target]) {
 		//CM.Cache[target][i].pp = CM.Cache[target][i].price / CM.Cache[target][i].bonus;
 		CM.Cache[target][i].pp = (Math.max(CM.Cache[target][i].price - (Game.cookies + CM.Disp.GetWrinkConfigBank()), 0) / Game.cookiesPs) + (CM.Cache[target][i].price / CM.Cache[target][i].bonus);
+		if (isNaN(CM.Cache[target][i].pp)) CM.Cache[target][i].pp = Infinity;
+		CM.Cache[target][i].logpp = CM.Cache[target][i].pp;
 		var color = '';
 		if (CM.Cache[target][i].pp <= 0 || CM.Cache[target][i].pp == Infinity) color = CM.Disp.colorGray;
-		else if (CM.Cache[target][i].pp < CM.Cache.min) color = CM.Disp.colorBlue;
-		else if (CM.Cache[target][i].pp == CM.Cache.min) color = CM.Disp.colorGreen;
-		else if (CM.Cache[target][i].pp == CM.Cache.max) color = CM.Disp.colorRed;
-		else if (CM.Cache[target][i].pp > CM.Cache.max) color = CM.Disp.colorPurple;
-		else if (CM.Cache[target][i].pp > CM.Cache.mid) color = CM.Disp.colorOrange;
+		else if (CM.Cache[target][i].logpp < CM.Cache.min) color = CM.Disp.colorBlue;
+		else if (Math.abs(CM.Cache[target][i].logpp - CM.Cache.min) < 0.001) color = CM.Disp.colorGreen;
+		else if (Math.abs(CM.Cache[target][i].logpp - CM.Cache.max) < 0.001) color = CM.Disp.colorRed;
+		else if (CM.Cache[target][i].logpp > CM.Cache.max) color = CM.Disp.colorPurple;
+		else if (CM.Cache[target][i].logpp > CM.Cache.mid) color = CM.Disp.colorOrange;
 		else color = CM.Disp.colorYellow;
 		CM.Cache[target][i].color = color;
 	}
@@ -396,6 +406,8 @@ CM.Cache.AvgClicks = -1;
  * Config *
  **********/
 
+CM.WizardLimits = [Infinity, 7, 9, 12, 33, 38, 43, 93, 97, 101];
+
 CM.SaveConfig = function(config) {
 	localStorage.setItem(CM.ConfigPrefix, JSON.stringify(config));
 }
@@ -533,6 +545,10 @@ CM.ConfigData.CPSMode = {label: ['Current Cookies Per Second', 'Average Cookies 
 CM.ConfigData.AvgCPSHist = {label: ['Average CPS for past 10s', 'Average CPS for past 15s', 'Average CPS for past 30s', 'Average CPS for past 1m', 'Average CPS for past 5m', 'Average CPS for past 10m', 'Average CPS for past 15m', 'Average CPS for past 30m'], desc: 'How much time average Cookies Per Second should consider', toggle: false};
 CM.ConfigData.AvgClicksHist = {label: ['Average Cookie Clicks for past 1s', 'Average Cookie Clicks for past 5s', 'Average Cookie Clicks for past 10s', 'Average Cookie Clicks for past 15s', 'Average Cookie Clicks for past 30s'], desc: 'How much time average Cookie Clicks should consider', toggle: false};
 CM.ConfigData.ToolWarnCautBon = {label: ['Calculate Tooltip Warning/Caution With Bonus CPS OFF', 'Calculate Tooltip Warning/Caution With Bonus CPS ON'], desc: 'Calculate the warning/caution with or without the bonus CPS you get from buying', toggle: true};
+CM.ConfigData.WizardLimit = {label: ['Mana unlimited'], desc: 'Ignore Wizard tower after max mana reaches this value'};
+for (const mana of CM.WizardLimits.slice(1)) {
+	CM.ConfigData.WizardLimit.label.push('Mana limit ' + mana);
+}
 CM.ConfigData.GCFlash = {label: ['Golden Cookie Flash OFF', 'Golden Cookie Flash ON'], desc: 'Flash screen on Golden Cookie', toggle: true};
 CM.ConfigData.GCSound = {label: ['Golden Cookie Sound OFF', 'Golden Cookie Sound ON'], desc: 'Play a sound on Golden Cookie', toggle: true};
 CM.ConfigData.GCVolume = {label: [], desc: 'Volume of the Golden Cookie sound'};
@@ -838,11 +854,7 @@ CM.Disp.CreateBotBar = function() {
 
 	for (var i in Game.Objects) {
 		var header = document.createElement('td');
-		header.appendChild(document.createTextNode((i.indexOf(' ') != -1 ? i.substring(0, i.indexOf(' ')) : i) + ' ('));
-		var span = document.createElement('span');
-		span.className = CM.Disp.colorTextPre + CM.Disp.colorBlue;
-		header.appendChild(span);
-		header.appendChild(document.createTextNode(')'));
+		header.appendChild(document.createTextNode((i.indexOf(' ') != -1 ? i.substring(0, i.indexOf(' ')) : i)));
 		type.appendChild(header);
 		bonus.appendChild(document.createElement('td'));
 		pp.appendChild(document.createElement('td'));
@@ -872,7 +884,6 @@ CM.Disp.UpdateBotBarOther = function() {
 
 		for (var i in CM.Cache.Objects) {
 			count++;
-			CM.Disp.BotBar.firstChild.firstChild.childNodes[0].childNodes[count].childNodes[1].textContent = Game.Objects[i].amount;
 			CM.Disp.BotBar.firstChild.firstChild.childNodes[1].childNodes[count].textContent = Beautify(CM.Cache.Objects[i].bonus, 2);
 			CM.Disp.BotBar.firstChild.firstChild.childNodes[2].childNodes[count].className = CM.Disp.colorTextPre + CM.Cache.Objects[i].color;
 			CM.Disp.BotBar.firstChild.firstChild.childNodes[2].childNodes[count].textContent = Beautify(CM.Cache.Objects[i].pp, 2);
@@ -1302,7 +1313,7 @@ CM.Disp.UpdateUpgrades = function() {
 }
 
 CM.Disp.UpdateColors = function() {
-	var str = '';
+	var str = '.cm-botbar td { margin: 0 1px } ';
 	for (var i = 0; i < CM.Disp.colors.length; i++) {
 		str += '.' + CM.Disp.colorTextPre + CM.Disp.colors[i] + ' { color: ' + CM.Config.Colors[CM.Disp.colors[i]] + '; }\n';
 	}
@@ -1684,6 +1695,7 @@ CM.Disp.AddMenuPref = function(title) {
 	frag.appendChild(listing('AvgCPSHist'));
 	frag.appendChild(listing('AvgClicksHist'));
 	frag.appendChild(listing('ToolWarnCautBon'));
+	frag.appendChild(listing('WizardLimit'));
 
 	frag.appendChild(header('Notification'));
 	frag.appendChild(listing('GCFlash'));
@@ -2748,6 +2760,8 @@ CM.ReplaceNativeGrimoireDraw = function() {
 	if (!CM.HasReplaceNativeGrimoireDraw && Game.Objects['Wizard tower'].minigameLoaded) {
 		var minigame = Game.Objects['Wizard tower'].minigame;
 		CM.Backup.GrimoireDraw = minigame.draw;
+		minigame.magicBarTextL.style.whiteSpace = 'nowrap';
+		minigame.magicBarTextL.style.left = '1px';
 		Game.Objects['Wizard tower'].minigame.draw = function() {
 			CM.Backup.GrimoireDraw();
 			if (CM.Config.GrimoireBar == 1 && minigame.magic < minigame.magicM) {
@@ -2896,6 +2910,7 @@ CM.ConfigDefault = {
 	AvgCPSHist: 3, 
 	AvgClicksHist: 0, 
 	ToolWarnCautBon: 0, 
+	WizardLimit: 0,
 	GCFlash: 1, 
 	GCSound: 1,  
 	GCVolume: 100, 
